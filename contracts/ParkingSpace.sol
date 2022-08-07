@@ -78,6 +78,22 @@ contract ParkingSpace is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         _;
     }
 
+    //Checks if the caller is the owner of the lot
+    modifier onlyLender(uint256 tokenId){
+        require(
+            parkingLots[tokenId].lender == msg.sender,
+            "Only the owner can perform this action"
+        );
+        _;
+    }
+
+    modifier notLender(uint256 tokenId){
+        require(msg.sender != parkingLots[tokenId].lender,
+        "The owner cannot perform this action"
+        );
+        _;
+    }
+
     // this checks if the renting period of a lot is over
     // this modifier also gives a deadline of 2 days to the renter to close his account with the current lot
     modifier rentOver(uint256 tokenId) {
@@ -89,25 +105,19 @@ contract ParkingSpace is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         _;
     }
 
-    // checks if current wallet has already reached the limit of lots they can rent
-    modifier lotLimit() {
-        require(
-            parkingLotsPerWallet[msg.sender] <= maxLotPerWallet,
-            "You have reached the number of Lots you can rent"
-        );
-        _;
-    }
-
     /// @dev This function creates a parking lot
     /// @notice Lot.renter is initialized in the same way as the lender
     function createLot(string memory uri)
         external
         payable
-        lotLimit
         nonReentrant
     {
         require(bytes(uri).length > 15, "Uri has to be valid");
         require(msg.value == mintFee, "You need to pay the mint fee");
+        require(
+            parkingLotsPerWallet[msg.sender] <= maxLotPerWallet,
+            "You have reached the number of Lots you can create"
+        );
 
         uint256 tokenId = totalParkings.current();
         totalParkings.increment();
@@ -131,7 +141,7 @@ contract ParkingSpace is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         _setTokenURI(tokenId, uri);
     }
 
-    function setUnavailable(uint256 tokenId) public isAvailable(tokenId) {
+    function setUnavailable(uint256 tokenId) public isAvailable(tokenId) onlyLender(tokenId) {
         parkingLots[tokenId].status = Listing.Unavailable;
         parkingLots[tokenId].deposit = 0;
         parkingLots[tokenId].price = 0;
@@ -144,13 +154,10 @@ contract ParkingSpace is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     function setSale(uint256 tokenId, uint256 price)
         public
         isAvailable(tokenId)
+        onlyLender(tokenId)
     {
         Lot storage currentLot = parkingLots[tokenId];
         require(price > 0, "Enter valid price");
-        require(
-            msg.sender == currentLot.lender,
-            "Only the owner can perform this action"
-        );
         currentLot.status = Listing.Sale;
         currentLot.rentPrice = 0;
         currentLot.price = price;
@@ -164,15 +171,11 @@ contract ParkingSpace is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         uint256 tokenId,
         uint256 price,
         uint256 deposit
-    ) public isAvailable(tokenId) {
+    ) public isAvailable(tokenId) onlyLender(tokenId) {
         Lot storage currentLot = parkingLots[tokenId];
         require(
             price > 0 && deposit <= 100,
             "Enter valid price and depsoit amount"
-        );
-        require(
-            msg.sender == currentLot.lender,
-            "Only the owner can perform this action"
         );
         currentLot.status = Listing.Rent;
         if (ownerOf(tokenId) == address(this)) {
@@ -184,14 +187,13 @@ contract ParkingSpace is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         currentLot.deposit = deposit;
     }
 
-    function buyLot(uint256 tokenId) external payable nonReentrant {
+    function buyLot(uint256 tokenId) external payable nonReentrant notLender(tokenId){
         Lot storage currentLot = parkingLots[tokenId];
         require(
             msg.value == parkingLots[tokenId].price,
             "You need to match the selling price"
         );
         require(currentLot.status == Listing.Sale, "Lot isn't on sale");
-        require(msg.sender != currentLot.lender, "You can't buy your own Lot");
 
         address payable lotOwner = currentLot.lender;
         currentLot.lender = payable(msg.sender);
@@ -211,6 +213,7 @@ contract ParkingSpace is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         payable
         isAvailable(tokenId)
         rentOver(tokenId)
+        notLender(tokenId)
     {
         require(
             !blacklisted[msg.sender],
@@ -273,12 +276,8 @@ contract ParkingSpace is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     }
 
     // this function is used by the lender in the situation that the renter hasn't return the lot after the deadline and additional time
-    function lenderEndRent(uint256 tokenId) external payable {
+    function lenderEndRent(uint256 tokenId) external payable onlyLender(tokenId){
         Lot storage currentLot = parkingLots[tokenId];
-        require(
-            currentLot.lender == msg.sender,
-            "Only lender can end the rent"
-        );
         require(
             block.timestamp > currentLot.returnDay + additionalTime,
             "There is still time left for renter to return the lot!"
@@ -294,7 +293,7 @@ contract ParkingSpace is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         return parkingLots[tokenId];
     }
 
-        function getRentPrice(
+    function getRentPrice(
         uint256 tokenId,
         uint256 _time,
         uint _status
