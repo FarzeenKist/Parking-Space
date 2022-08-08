@@ -9,7 +9,7 @@ import Wallet from "./Wallet";
 
 import { uploadToIpfs } from "../utils/mint";
 
-const Appbar = ({ address, destroy, balance, createLot }) => {
+const Appbar = ({ address, destroy, balance, createLot, mintFee }) => {
 	const [show, setShow] = useState(false);
 	const [description, setDescription] = useState("");
 	const [location, setLocation] = useState("");
@@ -34,7 +34,7 @@ const Appbar = ({ address, destroy, balance, createLot }) => {
 								MarketPlace
 							</Nav.Link>
 							<Nav.Link variant="primary" onClick={handleShow}>
-								Add Lot
+								Add Lot for {mintFee} CELO
 							</Nav.Link>
 						</Nav>
 						<Wallet
@@ -57,8 +57,10 @@ const Appbar = ({ address, destroy, balance, createLot }) => {
 									type="file"
 									onChange={async (e) => {
 										const imageUrl = await uploadToIpfs(e);
-										if(!imageUrl){
-											alert("Failed to upload Image to IPFS");
+										if (!imageUrl) {
+											alert(
+												"Failed to upload Image to IPFS"
+											);
 										}
 										setIpfsUrl(imageUrl);
 									}}
@@ -75,13 +77,18 @@ const Appbar = ({ address, destroy, balance, createLot }) => {
 									}}
 								/>
 							</Form.Group>
-							<Form.Group className="mb-3" controlId="description">
+							<Form.Group
+								className="mb-3"
+								controlId="description"
+							>
 								<Form.Label>Description</Form.Label>
 								<Form.Control
 									type="text"
 									placeholder="Enter a description of parking"
 									value={description}
-									onChange={(e) => setDescription(e.target.value)}
+									onChange={(e) =>
+										setDescription(e.target.value)
+									}
 								/>
 							</Form.Group>
 						</Form>
