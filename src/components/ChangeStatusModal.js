@@ -4,11 +4,7 @@ import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import Stack from "react-bootstrap/Stack";
 import { ethers } from "ethers";
-const ChangeStatusModal = ({
-	index,
-	currentStatus,
-	handleChangeStatus
-}) => {
+const ChangeStatusModal = ({ index, currentStatus, handleChangeStatus }) => {
 	const [showStatusModal, setShowStatusModal] = useState(false);
 
 	const handleCloseStatus = () => setShowStatusModal(false);
@@ -40,13 +36,13 @@ const ChangeStatusModal = ({
 								aria-label="rent input"
 								min="1"
 								value={newPrice}
-								onChange={(e) =>
-									setNewPrice(e.target.value)
-								}
+								onChange={(e) => setNewPrice(e.target.value)}
 							/>
 						</Form.Group>
 						<Form.Group controlId="newDeposit" className="mt-2">
-							<Form.Label>Enter new deposit amount</Form.Label>
+							<Form.Label>
+								Enter new deposit percentage
+							</Form.Label>
 							<Form.Control
 								type="number"
 								aria-label="rent input"
@@ -85,7 +81,9 @@ const ChangeStatusModal = ({
 										Unavailable
 									</option>
 								) : (
-									<option value="unavailable">Unavailable</option>
+									<option value="unavailable">
+										Unavailable
+									</option>
 								)}
 							</Form.Select>
 						</Form.Group>
@@ -95,11 +93,19 @@ const ChangeStatusModal = ({
 					<Button variant="secondary" onClick={handleCloseStatus}>
 						Close
 					</Button>
-					<Button variant="primary" onClick={async() => {
-						ethers.utils.parseUnits(`${newPrice}`);
-						await handleChangeStatus(newStatus, newPrice, newDeposit, index);
-						handleCloseStatus();
-						}}>
+					<Button
+						variant="primary"
+						onClick={async () => {
+							ethers.utils.parseUnits(`${newPrice}`);
+							await handleChangeStatus(
+								newStatus,
+								newPrice,
+								newDeposit,
+								index
+							);
+							handleCloseStatus();
+						}}
+					>
 						Confirm new Status
 					</Button>
 				</Modal.Footer>

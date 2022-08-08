@@ -9,7 +9,7 @@ import {
 	NotificationSuccess,
 } from "./components/ui/Notifications";
 import Cover from "./components/Cover";
-import { useBalance, useMinterContract, useAdditionalTime } from "./hooks";
+import { useBalance, useMinterContract, useAdditionalTime, useMintFee } from "./hooks";
 import "./App.css";
 import Appbar from "./components/Appbar";
 import Lot from "./components/Card";
@@ -24,6 +24,7 @@ import {
 	setUnavailable,
 } from "./utils/parking-space";
 import image from "./background.jpg";
+import { formatBigNumber } from "./utils";
 
 const App = function AppWrapper() {
 	const { address, connect, performActions, destroy } = useContractKit();
@@ -31,6 +32,7 @@ const App = function AppWrapper() {
 	const minterContract = useMinterContract();
 	const [nfts, setNfts] = useState([]);
 	const { additionalTime } = useAdditionalTime();
+	const {mintFee} = useMintFee();
 
 	const createLot = async (data) => {
 		try {
@@ -176,6 +178,7 @@ const App = function AppWrapper() {
 						destroy={destroy}
 						balance={balance}
 						createLot={createLot}
+						mintFee={formatBigNumber(mintFee)}
 					/>
 					<Container fluid="md">
 						<Row xs={1} sm={2} lg={3}>
