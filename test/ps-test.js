@@ -146,7 +146,7 @@ describe("Parking Space Test", function () {
 		expect(obj[1]).to.equal(acc2.address);
 		expect(obj[7]).to.equal(3);
 
-		const newFees = ethers.utils.formatEther(await ps.getRentPrice(0, 2, 3));
+		const newFees = ethers.utils.formatEther(await ps.getRentPrice(0, 86400, 3));
 		const txEndRent = await ps
 			.connect(acc2)
 			.clientEndRent(0, { value: ethers.utils.parseEther(`${newFees}`) });
