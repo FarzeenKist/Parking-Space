@@ -3,12 +3,13 @@ import axios from "axios";
 import BigNumber  from "bignumber.js";
 import { createLot } from "./parking-space"; 
 // initialize IPFS
+
 const auth =
     "Basic " +
     Buffer.from(
-        process.env.PROJECT_ID +
+        process.env.REACT_APP_PROJECT_ID +
             ":" +
-            process.env.PROJECT_SECRET
+            process.env.REACT_APP_PROJECT_SECRET
     ).toString("base64");
 
 const client = ipfsHttpClient({
