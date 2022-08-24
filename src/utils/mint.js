@@ -3,7 +3,23 @@ import axios from "axios";
 import BigNumber  from "bignumber.js";
 import { createLot } from "./parking-space"; 
 // initialize IPFS
-const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
+const auth =
+    "Basic " +
+    Buffer.from(
+        process.env.PROJECT_ID +
+            ":" +
+            process.env.PROJECT_SECRET
+    ).toString("base64");
+
+const client = ipfsHttpClient({
+  host: 'ipfs.infura.io',
+  port: 5001,
+  protocol: 'https',
+  apiPath: '/api/v0',
+  headers: {
+    authorization: auth,
+  }
+})
 
 // mint an NFT
 export const createNft = async (
