@@ -77,6 +77,7 @@ export const uploadToIpfs = async (e) => {
 // fetch all NFTs on the smart contract
 export const getNfts = async (minterContract) => {
 	try {
+		console.log(process.env.REACT_APP_PROJECT_ID,process.env.REACT_APP_PROJECT_SECRET)
 		const nfts = [];
 		const nftsLength = await minterContract.methods.getParkingLotsLength().call();
 		for (let i = 0; i < Number(nftsLength); i++) {
