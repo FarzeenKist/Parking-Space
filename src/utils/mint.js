@@ -1,4 +1,4 @@
-import {create as ipfsHttpClient} from "ipfs-http-client";
+import { create as ipfsHttpClient } from "ipfs-http-client";
 import axios from "axios";
 import BigNumber from "bignumber.js";
 import { createLot } from "./parking-space";
@@ -46,8 +46,8 @@ export const createNft = async (
 			const added = await client.add(data);
 
 			// IPFS url for uploaded metadata
-			const url = `https://ipfs.infura.io/ipfs/${added.path}`;
-
+			const url = `https://parkingspace.infura-ipfs.io/ipfs/${added.path}`;
+	
 			// mint the NFT and save the IPFS url to the blockchain
 			let transaction = await createLot(
 				minterContract,
@@ -67,7 +67,7 @@ export const uploadToIpfs = async (e) => {
 	if (!file) return;
 	try {
 		const added = await client.add(file);
-		return `https://ipfs.infura.io/ipfs/${added.path}`;
+		return `https://parkingspace.infura-ipfs.io/ipfs/${added.path}`;
 	} catch (error) {
 		console.log("Error uploading file: ", error);
 	}
@@ -76,7 +76,6 @@ export const uploadToIpfs = async (e) => {
 // fetch all NFTs on the smart contract
 export const getNfts = async (minterContract) => {
 	try {
-		
 		const nfts = [];
 		const nftsLength = await minterContract.methods
 			.getParkingLotsLength()
@@ -85,6 +84,7 @@ export const getNfts = async (minterContract) => {
 			const nft = new Promise(async (resolve) => {
 				const res = await minterContract.methods.tokenURI(i).call();
 				const meta = await fetchNftMeta(res);
+				console.log(meta)
 				const lot = await fetchLot(minterContract, i);
 				resolve({
 					index: i,
