@@ -63,7 +63,6 @@ export const createNft = async (
 
 // function to upload a file to IPFS
 export const uploadToIpfs = async (e) => {
-	console.log(process.env.REACT_APP_PROJECT_ID, process.env.REACT_APP_PROJECT_SECRET )
 	const file = e.target.files[0];
 	if (!file) return;
 	try {
