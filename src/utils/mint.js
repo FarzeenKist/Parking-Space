@@ -4,23 +4,21 @@ import BigNumber from "bignumber.js";
 import { createLot } from "./parking-space";
 // initialize IPFS
 
+const projectId = process.env.REACT_APP_PROJECT_ID;
+const projectSecret = process.env.REACT_APP_PROJECT_SECRET;
 const auth =
-    "Basic " +
-    Buffer.from(
-        process.env.REACT_APP_PROJECT_ID +
-            ":" +
-            process.env.REACT_APP_PROJECT_SECRET
-    ).toString("base64");
+    'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
 
 const client = ipfsHttpClient({
-  host: 'ipfs.infura.io',
-  port: 5001,
-  protocol: 'https',
-  apiPath: '/api/v0',
-  headers: {
-    authorization: auth,
-  }
-})
+    host: 'ipfs.infura.io',
+    port: 5001,
+    protocol: 'https',
+    headers: {
+        authorization: auth,
+    },
+});
+
+
 // mint an NFT
 export const createNft = async (
 	minterContract,
@@ -67,6 +65,7 @@ export const uploadToIpfs = async (e) => {
 	if (!file) return;
 	try {
 		const added = await client.add(file);
+		console.log(added);
 		return `https://parkingspace.infura-ipfs.io/ipfs/${added.path}`;
 	} catch (error) {
 		console.log("Error uploading file: ", error);
@@ -138,3 +137,5 @@ export const fetchNftContractOwner = async (minterContract) => {
 		console.log({ e });
 	}
 };
+
+
